@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>반응속도 체크</title>
+    <style>
+        #screen {
+            width: 300px;
+            height: 200px;
+            text-align: center;
+            user-select: none;
+        }
+        #screen.waiting {
+            background-color: aqua;
+        }
+        #screen.ready {
+            background-color: red;
+            color: white;
+        }
+        #screen.now {
+            background-color: greenyellow;
+        }
+    </style>
+</head>
+<body>
+    <div id="screen" class="waiting">클릭해서 테스트를 시작하세요</div>
+    <div id="result"></div>
+    <script>
+        const $screen = document.querySelector("#screen");
+        const $result = document.querySelector("#result");
+        let startTime;
+        let endTime;
+        const records = [];
+        let timeoutId;
+
+        $screen.addEventListener('click', function() {
+            if ($screen.classList.contains('waiting')) {
+                // 대기 화면 처리
+                $screen.classList.replace("waiting", "ready");
+                $screen.textContent = "초록색이 되면 클릭하세요.";
+                timeoutId = setTimeout(function () {
+                    startTime = new Date();
+                    $screen.classList.replace('ready', 'now'); // 화면 전환
+                    $screen.textContent = "클릭하세요!";
+                }, Math.floor(Math.random() * 1000) + 2000);
+            } else if ($screen.classList.contains('ready')) {
+                // 빨리 누르셨네요 (빨간 화면 상태일 때 클릭)
+                clearTimeout(timeoutId); // 타이머 중지
+                $screen.classList.replace("ready", "waiting");
+                $screen.textContent = "너무 성급하군요!";
+            } else if ($screen.classList.contains('now')) {
+                // 측정 화면 처리
+                endTime = new Date();
+                const current = endTime - startTime;
+                records.push(current);
+                const average = records.reduce((a, c) => a + c) / records.length;
+
+                // 기록 정렬 및 상위 5개 선택
+                const topFive = records.slice().sort((a, b) => a - b).slice(0, 5);
+                
+                // 상위 5개 기록 순위로 출력
+                let topFiveText = topFive.map((time, index) => `${index + 1}위 : ${time}ms`).join('<br>');
+
+                // 결과 표시
+                $result.innerHTML = `
+                    현재 : ${current}ms, 
+                    평균 : ${average.toFixed(2)}ms<br>
+                    <br>${topFiveText}  
+                `;
+                $screen.classList.replace("now", "waiting");
+                $screen.textContent = "클릭해서 테스트를 시작하세요";
+            }
+        });
+    </script>
+</body>
+</html>

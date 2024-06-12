@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>틱택토</title>
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+        td {
+            border: 1px solid black;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+<script>
+    const {body} = document;
+    const $table = document.createElement('table');
+    const $result = document.createElement('div'); // 결과창
+    const rows = []; // 줄 담당 배열
+    let turn = 'O'; // 차례 'O' 부터 시작
+
+    const checkWinner = (target) => { // 승패 판단
+        const rowIndex = target.parentNode.rowIndex; // tr의 행 인덱스
+        const cellIndex = target.cellIndex; // td의 열 인덱스
+        let hasWinner = false; // 세 칸이 같은 모양으로 채워졌는가?
+        
+        // 가로줄 검사
+        if (
+            rows[rowIndex][0].textContent === turn &&
+            rows[rowIndex][1].textContent === turn &&
+            rows[rowIndex][2].textContent === turn
+        ) {
+            hasWinner = true;
+        }
+        // 세로줄 검사
+        if (
+            rows[0][cellIndex].textContent === turn &&
+            rows[1][cellIndex].textContent === turn &&
+            rows[2][cellIndex].textContent === turn
+        ) {
+            hasWinner = true;
+        }
+        // 대각선 검사
+        if (
+            rows[0][0].textContent === turn &&
+            rows[1][1].textContent === turn &&
+            rows[2][2].textContent === turn
+            
+        ) {
+            hasWinner = true;
+        }
+        return hasWinner;
+    };
+
+    const callback = (event) => {
+        if (event.target.tagName !== 'TD' || event.target.textContent !== '') { // 빈칸이 아닌가?
+            console.log('빈칸이 아닙니다.');
+            return;
+        }
+        // 빈칸이면
+        console.log('빈칸입니다.')
+        event.target.textContent = turn;
+        const hasWinner = checkWinner(event.target);
+        // 승자가 있으면
+        if (hasWinner) {
+            $result.textContent = `${turn}님이 승리!`;
+            $table.removeEventListener('click', callback);
+            return;
+        }
+        const draw = rows.flat().every((cell) => cell.textContent);
+        if (draw) {
+            $result.textContent = '무승부';
+            return;
+        }
+        turn = turn === 'X' ? 'O' : 'X';
+    };
+
+    for (let i = 0; i < 3; i++) { // 행 인덱스 수정
+        const $tr = document.createElement('tr');
+        const cells = [];
+        for (let j = 0; j < 3; j++) { // 열 인덱스 수정
+            const $td = document.createElement('td');
+            cells.push($td);
+            $tr.appendChild($td);
+        }
+        rows.push(cells);
+        $table.appendChild($tr);
+    }
+
+    $table.addEventListener('click', callback); // 이벤트 리스너를 테이블에 한 번만 추가
+    body.appendChild($table);
+    body.appendChild($result);
+</script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>202230213 박태헌 Quiz-Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f7f7f7;
+            margin: 0;
+        }
+
+        #quiz-container {
+            width: 300px;
+            text-align: center;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        .start-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .next-btn {
+            background-color: #008CBA;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        .correct {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .wrong {
+            background-color: #f44336;
+            color: white;
+        }
+
+        #timer {
+            font-size: 20px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="quiz-container">
+        <div id="question-container" class="hide">
+            <div id="question">Question text</div>
+            <div id="answer-buttons" class="btn-container">
+                <button class="btn">Answer 1</button>
+                <button class="btn">Answer 2</button>
+                <button class="btn">Answer 3</button>
+                <button class="btn">Answer 4</button>
+            </div>
+            <div id="timer">시간: <span id="time-left">10</span>초</div>
+        </div>
+        <div id="controls" class="btn-container">
+            <button id="start-btn" class="start-btn btn">퀴즈 시작하기!</button>
+            <button id="next-btn" class="next-btn btn hide">다음</button>
+        </div>
+        <div id="result-container" class="hide">
+            <h2 id="result-text"></h2>
+            <button id="restart-btn" class="start-btn btn">다시 시작하기</button>
+        </div>
+    </div>
+    <script>
+        const startButton = document.getElementById('start-btn');
+        const nextButton = document.getElementById('next-btn');
+        const restartButton = document.getElementById('restart-btn');
+        const questionContainer = document.getElementById('question-container');
+        const resultContainer = document.getElementById('result-container');
+        const questionElement = document.getElementById('question');
+        const answerButtonsElement = document.getElementById('answer-buttons');
+        const resultText = document.getElementById('result-text');
+        const timerElement = document.getElementById('time-left');
+
+        let shuffledQuestions, currentQuestionIndex;
+        let score = 0;
+        let timeLeft;
+        let timerInterval;
+
+        const questions = [
+            {
+                question: '202230213 박태헌이 재학 중인 대학의 이름은?',
+                answers: [
+                    { text: '대림대학교', correct: true },
+                    { text: '안양대학교', correct: false },
+                    { text: '신구대학교', correct: false },
+                    { text: '연성대학교', correct: false }
+                ]
+            },
+            {
+                question: 'JavaScript 전공을 맡으신 교수님의 성함은?',
+                answers: [
+                    { text: '정호일 교수님', correct: false },
+                    { text: '강성관 교수님', correct: false },
+                    { text: '신동욱 교수님', correct: false },
+                    { text: '유현성 교수님', correct: true }
+                ]
+            },
+            {
+                question: '대림대학교 출신 유명인으로 올바른 인물은?',
+                answers: [
+                    { text: '손흥민 (축구선수)', correct: false },
+                    { text: '박수홍 (방송인)', correct: true },
+                    { text: '이대호 (야구선수)', correct: false },
+                    { text: '이병건 (방송인)', correct: false }
+                ]
+            },
+            {
+                question: '대림대학교의 교훈으로 올바른 것은?',
+                answers: [
+                    { text: '어쩔티비', correct: false },
+                    { text: '참되고 쓸모있는 기술인이 되자', correct: false },
+                    { text: '성실한 교양인, 유능한 기술인, 근면한 직업인', correct: true },
+                    { text: '서로 사랑하자', correct: false }
+                ] 
+            },
+            {
+                question: '이번 개인 프로젝트의 제출 기한은?',
+                answers: [
+                    { text: '6월 13일', correct: false },
+                    { text: '6월 14일', correct: false },
+                    { text: '6월 15일', correct: false },
+                    { text: '6월 16일', correct: true }
+                ]
+            },
+        ];
+
+        startButton.addEventListener('click', startGame);
+        nextButton.addEventListener('click', () => {
+            currentQuestionIndex++;
+            setNextQuestion();
+        });
+        restartButton.addEventListener('click', startGame);
+
+        function startGame() {
+            startButton.classList.add('hide');
+            restartButton.classList.add('hide');
+            resultContainer.classList.add('hide');
+            shuffledQuestions = questions.sort(() => Math.random() - 0.5);
+            currentQuestionIndex = 0;
+            score = 0;
+            questionContainer.classList.remove('hide');
+            setNextQuestion();
+        }
+
+        function setNextQuestion() {
+            resetState();
+            showQuestion(shuffledQuestions[currentQuestionIndex]);
+            startTimer();
+        }
+
+        function showQuestion(question) {
+            questionElement.innerText = question.question;
+            question.answers.forEach(answer => {
+                const button = document.createElement('button');
+                button.innerText = answer.text;
+                button.classList.add('btn');
+                if (answer.correct) {
+                    button.dataset.correct = answer.correct;
+                }
+                button.addEventListener('click', selectAnswer);
+                answerButtonsElement.appendChild(button);
+            });
+        }
+
+        function resetState() {
+            clearStatusClass(document.body);
+            nextButton.classList.add('hide');
+            while (answerButtonsElement.firstChild) {
+                answerButtonsElement.removeChild(answerButtonsElement.firstChild);
+            }
+            clearInterval(timerInterval);
+            timerElement.innerText = '10';
+        }
+
+        function selectAnswer(e) {
+            const selectedButton = e.target;
+            const correct = selectedButton.dataset.correct === 'true';
+            setStatusClass(document.body, correct);
+            if (correct) {
+                score++;
+            }
+            Array.from(answerButtonsElement.children).forEach(button => {
+                setStatusClass(button, button.dataset.correct);
+            });
+            clearInterval(timerInterval);
+            if (shuffledQuestions.length > currentQuestionIndex + 1) {
+                nextButton.classList.remove('hide');
+            } else {
+                showResult();
+            }
+        }
+
+        function setStatusClass(element, correct) {
+            clearStatusClass(element);
+            if (correct) {
+                element.classList.add('correct');
+            } else {
+                element.classList.add('wrong');
+            }
+        }
+
+        function clearStatusClass(element) {
+            element.classList.remove('correct');
+            element.classList.remove('wrong');
+        }
+
+        function startTimer() {
+            timeLeft = 10;
+            timerElement.innerText = timeLeft;
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerElement.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    selectAnswer({ target: { dataset: { correct: false } } });
+                }
+            }, 1000);
+        }
+
+        function showResult() {
+            questionContainer.classList.add('hide');
+            resultContainer.classList.remove('hide');
+            resultText.innerText = `퀴즈 완료! 맞춘 개수: ${score} / ${questions.length}`;
+            startButton.innerText = 'Restart';
+            restartButton.classList.remove('hide');
+        }
+    </script>
+</body>
+</html>
