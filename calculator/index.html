@@ -60,9 +60,10 @@
         let numTwo = "";
         const $operator = document.querySelector("#operator");
         const $result = document.querySelector('#result');
+        
         const OnClickNumber = (event) => {
             if (!operator) {
-                numOne += event.target.textContent;
+                numOne += event.target.textContent; 
                 $result.value += event.target.textContent;
                 return;
             }
@@ -82,7 +83,7 @@
         document.querySelector("#num-6").addEventListener("click", OnClickNumber);
         document.querySelector("#num-7").addEventListener("click", OnClickNumber);
         document.querySelector("#num-8").addEventListener("click", OnClickNumber);
-        document.querySelector("#num-9").addEventListener("click", OnClickNumber);
+        document.querySelector("#num-9").addEventListener("click", OnClickNumber);  
         
         const onClickOperator = (op) => () => {
             if (numOne) {
@@ -94,45 +95,45 @@
         };
 
         document
-            .querySelector("#plus")
-            .addEventListener("click", onClickOperator("+"));
-            document
-            .querySelector("#minus")
-            .addEventListener("click", onClickOperator("-"));
-            document
-            .querySelector("#divide")
-            .addEventListener("click", onClickOperator("/"));
-            document
-            .querySelector("#multiply")
-            .addEventListener("click", onClickOperator("*"));
+          .querySelector("#plus")
+          .addEventListener("click", onClickOperator("+"));
+        document
+        .querySelector("#minus")
+        .addEventListener("click", onClickOperator("-"));
+        document
+        .querySelector("#divide")
+        .addEventListener("click", onClickOperator("/"));
+        document
+        .querySelector("#multiply")
+        .addEventListener("click", onClickOperator("*"));
 
-            document.querySelector("#calculate").addEventListener("click", () => {
-                if (numTwo) {
-                    switch (operator) {
-                        case "+": 
-                            $result.value = parseInt(numOne) + parseInt(numTwo);
-                            break;
-                        case "-": 
-                            $result.value = numOne - numTwo;
-                            break;
-                        case "/": 
-                            $result.value = numOne * numTwo;
-                            break;
-                        case "*": 
-                            $result.value = numOne / numTwo;
-                            break;
-                    }
-                } else {
-                    alert("숫자를 먼저 입력하세요.");
+        document.querySelector("#calculate").addEventListener("click", () => {
+            if (numTwo) {
+                switch (operator) {
+                    case "+": 
+                        $result.value = parseInt(numOne) + parseInt(numTwo);
+                        break;
+                    case "-": 
+                        $result.value = numOne - numTwo;
+                        break;
+                    case "/": 
+                        $result.value = numOne * numTwo;
+                        break;
+                    case "*": 
+                        $result.value = numOne / numTwo;
+                        break;
                 }
-            });
-            document.querySelector("#clear").addEventListener("click", () => {
-                numOne = "";
-                operator = "";
-                numTwo = "";
-                $operator.value = "";
-                $result.value = "";
-            });
+            } else {
+                alert("숫자를 먼저 입력하세요.");
+            }
+        });
+        document.querySelector("#clear").addEventListener("click", () => {
+            numOne = "";
+            operator = "";
+            numTwo = "";
+            $operator.value = "";
+            $result.value = "";
+        });
     </script>
   </body>
 </html>
